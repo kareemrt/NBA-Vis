@@ -17,3 +17,9 @@ Program that uses basketball-reference.com & web-parsing to construct Pandas Dat
 * Separate module for tests: tests.py
 * Separate module for Object-Oriented implementation: OO.py
 
+**As of 12/20, functionality includes:**
+* File Input/Output functionality to save Player & Team urls, and user League/Team/Player objects (Separate module: File_IO.py)
+* Developed Object-Oriented implimentation to abstract out pulling/storing user data (Separate module: OO.py (old) -> Objects.py)
+* Developed Unittests for more up-to-date testing
+* Abstract out methods.py -> functions.py & HTML_IO.py
+* Abstract out Data files (/Data) and IO files (/IO)
