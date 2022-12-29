@@ -2,23 +2,17 @@ from pandas import DataFrame
 import matplotlib.pyplot as plt
 
 Qual_Stats = ["Pos", "Tm"]
-Quant_Stats = ["Age", "G", "GS", "MP", "PTS", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "2P","2PA","2P%","eFG%","FT","FTA","FT%","ORB","DRB","TRB","AST","STL","BLK","TOV","PF"]
-All_Stats = Qual_Stats + Quant_Stats
+Quant_Stats_CSV = ["Age", "G", "GS", "MP", "PTS", "FG", "FGA", "FG%", "3P", "3PA", "3P%", "2P","2PA","2P%","eFG%","FT","FTA","FT%","ORB","DRB","TRB","AST","STL","BLK","TOV","PF"]
+All_Stats = Qual_Stats + Quant_Stats_CSV
 
-def get_tags_from_dict(tag_dict, players): 
-#   Description: Produce a list of player tags given a list of players { league_tags- dict(str:str): dict{players:tags} in the NBA
-#                                                                        players- list(str): list of players to produce tags of. }
-    return [tag_dict.get(player) for player in players]
 
-Stat_Functions = [get_tags_from_dict]
-
-def Visualize_Df(d, players, stats = Quant_Stats, to_list = False, stacked_bar = False):
-#   Graph the selected players stats as a dataframe, returns a list of those stats if specified.
-#   Output: matplotlib graph AND/OR list(str/int)   { d- df: data.
-#                                                     players- list(str): player(s).
-#                                                     stats- list (str): stats from d to visualize.
-#                                                     to_list- bool: returns a list of the visualized stats. If multiple players, returns a 2D list. }
-#   note: if 2D, each list indexes (e.g. Visualize_Stats()[0] vs Visualize_Stats[1]) players and sub-indexes (Vis_S[0][0] vs Vis_S[0][1]) are different stats for that player.
+def Visualize_Df(d, players, stats = Quant_Stats_CSV, to_list = False, stacked_bar = False):
+    '''Graph the selected players stats as a dataframe, returns a list of those stats if specified. \nOutput: matplotlib graph AND/OR list(str/int)   
+    * d- df: data.
+    * players- list(str): player(s).
+    * stats- list (str): stats from d to visualize.
+    * to_list- bool: returns a list of the visualized stats. If multiple players, returns a 2D list.
+    note: if 2D, each list indexes (e.g. Visualize_Stats()[0] vs Visualize_Stats[1]) players and sub-indexes (Vis_S[0][0] vs Vis_S[0][1]) are different stats for that player. '''
     try: assert len(stats) > 0 
     except AssertionError: stats = ["PTS"] # Make sure there are stats to visualize
     stats = stats.copy()
@@ -57,8 +51,9 @@ def Visualize_Df(d, players, stats = Quant_Stats, to_list = False, stacked_bar =
     plt.legend(players)
     if to_list: return return_stats
 def Live_Compare(d, stacked_bar = False):
-#   Description: Function allowing user to input names to then compare. { d- df: data.
-#                                                                         stacked_bar- bool: overlay/separate player stat graphs. }
+    '''Description: Function allowing user to input names to then compare. 
+    * d- df: data
+    * stacked_bar- bool: overlay/separate player stat graphs'''
     selected = []
     players = d['Player'].values
     player = input("Which player's stats would you like to see? (' ' to terminate)")
@@ -72,18 +67,25 @@ def Live_Compare(d, stacked_bar = False):
 
 Display_Functions = [Visualize_Df, Live_Compare]
 
-def shrink_df(d, players, stats = Quant_Stats.copy()) -> DataFrame:
-#   Shrink df to specified players, stats.  {   d- df: data.
-#                                               players- list(str): player(s).
-#                                               stats- list(str): stats from d to visualize.    } 
+def get_tags_from_dict(tag_dict, players): 
+    '''Produce a list of player tags given a list of players
+    * league_tags- dict(str:str): dict {players:tags} in the NBA
+    * players- list(str): list of players to produce tags of}'''
+    return [tag_dict.get(player) for player in players]
+def shrink_df(d, players, stats = Quant_Stats_CSV) -> DataFrame:
+    '''Shrink df to specified players, stats
+    * d- df: data\nplayers- list(str): player(s)
+    * stats- list(str): stats from d to visualize'''
     if stats != None: #User specifies certain stats (non-default)
         stats = stats.copy()
         try: assert "Player" in stats #Makes sure that when we shrink the df to those stats, we don't accidentally remove the Player Name col (needed for compares)
         except AssertionError: stats.append("Player") 
         d = d[stats]
-    return d[d['Player'].isin(players)]
+    d = d[d['Player'].isin(players)]
+    return d
 def clean_gamelogs(d, season_stats = False) -> DataFrame:
-#   Description: Produce a cleaned DataFrame of a player's gamelogs/season_stats given a dirty DataFrame { d- df: data. }
+    '''Produce a cleaned DataFrame of a player's gamelogs/season_stats given a dirty DataFrame
+    * d- df: data'''
     d = d.copy() # Copy the original df to avoid errors
     d.dropna(subset=['Age'], inplace=True)
     d = d[d['Age'] != 'Age'] # = d[d["Rk"] != "Rk"] # Remove extra rows (there are rows that repeat the original column headers, but do not contain values (because the table is 80+ rows))
@@ -94,7 +96,8 @@ def clean_gamelogs(d, season_stats = False) -> DataFrame:
         d.dropna(subset=['Played'], inplace=True) # drop unplayed games
     return d
 def clean_career_stats(d) -> DataFrame:
-#   Description: Produce a cleaned DataFrame of a player's gamelogs/season_stats given a dirty DataFrame { d- df: data. }
+    '''Description: Produce a cleaned DataFrame of a player's gamelogs/season_stats given a dirty DataFrame
+    * d- df: data'''
     return clean_gamelogs(d, season_stats = True)
 
-Clean_Functions = [shrink_df, clean_gamelogs, clean_career_stats]
+Clean_Functions = [get_tags_from_dict, shrink_df, clean_gamelogs, clean_career_stats]

@@ -1,5 +1,6 @@
 import re # FILE I/O: Save (Franchise names/urls, Player names/url tags, League/Team/Player Objects) in Files to avoid saturating HTML requests
 import shelve
+import platform
 from IO.HTML_IO import HTML_get_franchise_dict, HTML_get_player_dict
 
 def FileIO_Save_Franchise_Dict():
@@ -38,12 +39,24 @@ def FileIO_Load_Players_Dict():
     return league_tags
 
 def FileIO_Save_Object(name, object):
-    db = shelve.open("Data/League")
+    db = shelve.open("Data/League", writeback=True) # the writeback flag saves the object whenever it is closed, as opposed to only assignment
     db[name] = object
     db.close()
 
 def FileIO_Load_Object(name):
-    db = shelve.open("Data/League")
+    db = shelve.open("Data/League", writeback=True)
     object = db[name]
     db.close()
     return object
+
+def FileIO_Load_HTML_Credentials():
+    with open("IO/Credentials.txt", "r") as c:
+        username = c.readline()
+        password = c.readline()
+        credentials = c.readline()
+    return username, password, credentials
+
+def FileIO_Load_HTML_Proxies():
+    with open("IO/Proxies.txt") as p:
+        proxies = p.readlines()
+    return proxies
