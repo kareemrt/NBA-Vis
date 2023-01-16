@@ -8,28 +8,28 @@ csv_df = read_csv('/Users/kareemtaha/Downloads/2022-2023 NBA Player Stats - Regu
 class Test_CSV_Functions(unittest.TestCase):
     def test_eval(self):
         print("Test 1: Test Evaluation | Function - GetPlayersDf\n================================================================\n")
-        d = concat([shrink_df(csv_df, ["Damian Lillard", "Stephen Curry", "Kevin Durant"], All_Stats), shrink_df(csv_df, ["LeBron James"], All_Stats), shrink_df(csv_df, ["Josh Hart", "Nassir Little"], All_Stats)])
+        d = concat([_shrink_df(csv_df, ["Damian Lillard", "Stephen Curry", "Kevin Durant"], All_Stats), _shrink_df(csv_df, ["LeBron James"], All_Stats), _shrink_df(csv_df, ["Josh Hart", "Nassir Little"], All_Stats)])
         print(d)
         print("\n================================================================")
     def test_visualize_df_multiple(self):
         print("Test 2: Multiple ToList | Function - VisualizeStats\n================================================================\n")
-        f = Visualize_Df(csv_df, players = ["Damian Lillard", "Stephen Curry"], to_list=True)
+        f = Visualize_Avg_Df(csv_df, players = ["Damian Lillard", "Stephen Curry"], to_list=True)
         print(f[1])
         print()
         print(f[0])
         print("\n================================================================")
     def test_visualize_df_single(self):
         print("Test 3: Single ToList | Function - VisualizeStats\n================================================================\n")
-        d = Visualize_Df(csv_df, players = ["Josh Hart"], to_list=True)
+        d = Visualize_Avg_Df(csv_df, players = ["Josh Hart"], to_list=True)
         print(d)
         print("\n================================================================")   
     def test_visualize_df_stacked(self):
         print("Test 4: Multiple Stat-By-Stat | Function - VisualizeStats\n================================================================\n")
-        d = Visualize_Df(csv_df, players = ["Damian Lillard", "Josh Hart"], stats=Quant_Stats_CSV, stacked_bar=True, to_list=True)
+        d = Visualize_Avg_Df(csv_df, players = ["Damian Lillard", "Josh Hart"], stats=Quant_Stats_AVG, stacked_bar=True, to_list=True)
         for player_set in d:
             print(player_set[0] + 's stats')
-            for i in range(len(Quant_Stats_CSV)-1):
-                print(f'{Quant_Stats_CSV[i]}: {player_set[i+1]}')
+            for i in range(len(Quant_Stats_AVG)-1):
+                print(f'{Quant_Stats_AVG[i]}: {player_set[i+1]}')
         print("\n================================================================")
 class Test_HTML_Functions(unittest.TestCase):
     def test_get_seasons(self):
@@ -49,7 +49,7 @@ class Test_HTML_Functions(unittest.TestCase):
         lebron_tag = "jamesle01"
         lebron_seasons = HTML_get_player_seasons(lebron_tag)
         lebron_season4_games = RAW_HTML_get_player_gamelogs(lebron_tag, lebron_seasons[3])
-        d = clean_gamelogs(lebron_season4_games)
+        d = _clean_html_gamelogs(lebron_season4_games)
         print(d)
         print("\n================================================================")
     def test_get_career_stats(self):
@@ -84,7 +84,7 @@ class Test_Objects(unittest.TestCase):
         NBA = League("NBA")
         NBA.set_teams()
         NBA.print_teams()
-        NBA.set_players()
+        NBA.set_league_players()
         bothp = NBA.get_players(["Damian Lillard", "Stephen Curry"])
         print(bothp["Damian Lillard"], bothp["Stephen Curry"])
 class Test_FileIO(unittest.TestCase):

@@ -31,3 +31,10 @@ This project began as a Jupyter notebook but the functionality has been expanded
 * Abstract out credentials/proxies to File IO to promote modularity
 * Cleaned unittest name scheme to more clearly organize and reflect testing purpose
 * Added functionality for player stat visualization
+
+**As of 1/16, functionality includes:**
+* Added 'Group' Class to help compare specific players (not on the same team)
+* Reduced # of object methods by ~1/3 to enhance clarity
+* Abstract out html headers for IO requests to a file to promote modularity
+* Cleaned up main.py and process.ipynb so that user use is straightforward
+* Bug fixes

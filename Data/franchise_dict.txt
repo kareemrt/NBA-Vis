@@ -1,31 +1,31 @@
 
 Boston Celtics: https://www.basketball-reference.com/teams/BOS/2023.html#roster
+Brooklyn Nets: https://www.basketball-reference.com/teams/BRK/2023.html#roster
 Milwaukee Bucks: https://www.basketball-reference.com/teams/MIL/2023.html#roster
 Cleveland Cavaliers: https://www.basketball-reference.com/teams/CLE/2023.html#roster
-Brooklyn Nets: https://www.basketball-reference.com/teams/BRK/2023.html#roster
 Philadelphia 76ers: https://www.basketball-reference.com/teams/PHI/2023.html#roster
-New York Knicks: https://www.basketball-reference.com/teams/NYK/2023.html#roster
-Miami Heat: https://www.basketball-reference.com/teams/MIA/2023.html#roster
 Indiana Pacers: https://www.basketball-reference.com/teams/IND/2023.html#roster
+Miami Heat: https://www.basketball-reference.com/teams/MIA/2023.html#roster
+New York Knicks: https://www.basketball-reference.com/teams/NYK/2023.html#roster
 Atlanta Hawks: https://www.basketball-reference.com/teams/ATL/2023.html#roster
-Toronto Raptors: https://www.basketball-reference.com/teams/TOR/2023.html#roster
-Chicago Bulls: https://www.basketball-reference.com/teams/CHI/2023.html#roster
 Washington Wizards: https://www.basketball-reference.com/teams/WAS/2023.html#roster
+Chicago Bulls: https://www.basketball-reference.com/teams/CHI/2023.html#roster
+Toronto Raptors: https://www.basketball-reference.com/teams/TOR/2023.html#roster
 Orlando Magic: https://www.basketball-reference.com/teams/ORL/2023.html#roster
-Detroit Pistons: https://www.basketball-reference.com/teams/DET/2023.html#roster
 Charlotte Hornets: https://www.basketball-reference.com/teams/CHO/2023.html#roster
+Detroit Pistons: https://www.basketball-reference.com/teams/DET/2023.html#roster
+Denver Nuggets: https://www.basketball-reference.com/teams/DEN/2023.html#roster
 Memphis Grizzlies: https://www.basketball-reference.com/teams/MEM/2023.html#roster
 New Orleans Pelicans: https://www.basketball-reference.com/teams/NOP/2023.html#roster
-Denver Nuggets: https://www.basketball-reference.com/teams/DEN/2023.html#roster
-Phoenix Suns: https://www.basketball-reference.com/teams/PHO/2023.html#roster
-Sacramento Kings: https://www.basketball-reference.com/teams/SAC/2023.html#roster
-Portland Trail Blazers: https://www.basketball-reference.com/teams/POR/2023.html#roster
-Utah Jazz: https://www.basketball-reference.com/teams/UTA/2023.html#roster
-Los Angeles Clippers: https://www.basketball-reference.com/teams/LAC/2023.html#roster
 Dallas Mavericks: https://www.basketball-reference.com/teams/DAL/2023.html#roster
-Minnesota Timberwolves: https://www.basketball-reference.com/teams/MIN/2023.html#roster
+Sacramento Kings: https://www.basketball-reference.com/teams/SAC/2023.html#roster
+Los Angeles Clippers: https://www.basketball-reference.com/teams/LAC/2023.html#roster
+Portland Trail Blazers: https://www.basketball-reference.com/teams/POR/2023.html#roster
+Phoenix Suns: https://www.basketball-reference.com/teams/PHO/2023.html#roster
 Golden State Warriors: https://www.basketball-reference.com/teams/GSW/2023.html#roster
-Los Angeles Lakers: https://www.basketball-reference.com/teams/LAL/2023.html#roster
+Utah Jazz: https://www.basketball-reference.com/teams/UTA/2023.html#roster
+Minnesota Timberwolves: https://www.basketball-reference.com/teams/MIN/2023.html#roster
 Oklahoma City Thunder: https://www.basketball-reference.com/teams/OKC/2023.html#roster
+Los Angeles Lakers: https://www.basketball-reference.com/teams/LAL/2023.html#roster
 San Antonio Spurs: https://www.basketball-reference.com/teams/SAS/2023.html#roster
 Houston Rockets: https://www.basketball-reference.com/teams/HOU/2023.html#roster
