@@ -1,62 +1,54 @@
-import re # FILE I/O: Save (Franchise names/urls, Player names/url tags, League/Team/Player Objects) in Files to avoid saturating HTML requests
+import re               # FILE I/O: Save (Franchise names/urls, Player names/url tags, League/Team/Player Objects) in Files to avoid saturating HTML requests
 import shelve
 import IO.HTML_IO as IO
-def FileIO_Save_Franchise_Dict():
+
+def FileIO_Save_TeamsD():
     '''Save Franchise Dict {Name: Url} to File (files/team_tags.txt)'''
-    team_tags = IO.HTML_get_franchise_dict()
-    with open("Data/franchise_dict.txt", "w") as teamfile:
-        for team, tag in team_tags.items():
-            teamfile.write(f"\n{team}: {tag}")
-def FileIO_Save_Players_Dict(team_tags):
+    tags = IO.HTML_team_urls()
+    with open("Data/franchise_dict.txt", "w") as f:
+        for team, tag in tags.items():
+            f.write(f"\n{team}: {tag}")
+
+def FileIO_Save_PlayersD():
     '''Save Players Dict {Name: Url Tag} to File (files/league_tags.txt)'''
-    league_tags = IO.HTML_get_player_dict( team_tags.values() )
-    with open("Data/players_dict.txt", "w", encoding="utf-8") as leaguefile:
-        for player, tag in league_tags.items(): leaguefile.write(f"\n{player}: {tag}") 
-def FileIO_Load_Franchise_Dict():
+    tags = IO.HTML_player_tags(roster_htmls = FileIO_Load_TeamsD().values())
+    with open("Data/players_dict.txt", "w", encoding="utf-8") as f:
+        for player, tag in tags.items(): f.write(f"\n{player}: {tag}")
+
+def FileIO_Load_TeamsD():
     '''Read Franchise Dict {Name: Url} from File (files/team_tags.txt)'''
-    team_tags = {}
+    tags = {}
     pattern = "(.*): (.*)"
-    with open("Data/franchise_dict.txt", "r", encoding='utf-8') as teamfile:
-        teamfile.readline()
-        for line in teamfile.readlines(): 
+    with open("Data/franchise_dict.txt", "r", encoding='utf-8') as f:
+        f.readline()
+        for line in f.readlines(): 
             player, tag = re.findall(pattern, line)[0]
-            team_tags[player] = tag
-    return team_tags
-def FileIO_Load_Players_Dict():
+            tags[player] = tag
+    return tags
+
+def FileIO_Load_PlayersD():
     '''Read Players Dict {Name: Url Tag} from File (files/league_tags.txt)'''
-    league_tags = {}
+    tags = {}
     pattern = "(.*): (.*)"
-    with open("Data/players_dict.txt", "r", encoding='utf-8') as leaguefile:
-        leaguefile.readline()
-        for line in leaguefile.readlines():
+    with open("Data/players_dict.txt", "r", encoding='utf-8') as f:
+        f.readline()
+        for line in f.readlines():
             player, tag = re.findall(pattern, line)[0]
-            league_tags[player] = tag
-    return league_tags
-def FileIO_Save_Object(name, object):
-    '''Save league/team/player objects to database file'''
-    db = shelve.open("Data/League", writeback=True) # the writeback flag saves the object whenever it is closed, as opposed to only assignment
-    db[name] = object
-    db.close()
-def FileIO_Load_Object(name):
-    '''Load league/team/player objects from database file'''
-    db = shelve.open("Data/League", writeback=True)
-    object = db[name]
-    db.close()
-    return object
-def FileIO_Load_HTML_Credentials():
-    '''Load Socks5 username/password credentials for proxies'''
+            tags[player] = tag
+    return tags
+
+def FileIO_Object(object, save = False):
+    '''Load/Save objects (League/Team/Player) to file'''
+    with shelve.open("Data/League", writeback=True) as db: # the writeback flag saves the object whenever it is closed, as opposed to only assignment
+        if save: db[object.name] = object
+        else: return db[object]
+
+def FileIO_HTML():
+    '''Loads HTML headers, alongside Socks5 proxies, including proxy username, password, and credentials'''
     with open("IO/Credentials.txt", "r") as c:
         username = c.readline().strip()
         password = c.readline().strip()
         credentials = c.readline().strip()
-    return username, password, credentials
-def FileIO_Load_HTML_Proxies():
-    '''Load Socks5 proxies'''
-    with open("IO/Proxies.txt") as p:
-        proxies = p.readlines()
-    return [proxy.strip() for proxy in proxies]
-def FileIO_Load_HTML_Headers():
-    '''Load html headers'''
-    with open("IO/Headers.txt") as h:
-        headers = h.readlines()
-    return [header.strip() for header in headers]
+    with open("IO/Proxies.txt") as p: proxies = [proxy.strip() for proxy in p.readlines()]
+    with open("IO/Headers.txt") as h: headers = [header.strip() for header in h.readlines()]
+    return username, password, credentials, proxies, headers
