@@ -1,40 +1,52 @@
 # NBA-Visualizer
 ## Author: Kareem T | Date: 11/22/2022
-Program that can use either data files (csv/db) or web-parsing (via basketball-reference.com) to construct Pandas Dataframe and find analytical insights about the NBA.
+
+Program that utilizes web-scraping (via basketball-reference.com) to construct DataFrames and populate an SQL database 
+
+**The goal:** Find analytical insights about the NBA.
+
+### About ###
 
 This project began as a Jupyter notebook but the functionality has been expanded to separate modules so that it can be used in both Jupyter and as a standalone Python program.
 
-**As of 11/29, functionality includes:**
-* Parsing CSV files for NBA 2022 averages data within DataFrames
-* Parsing 1+ current (2022) player's season stats (df) from averages df
-* Parsing 1+ players (df) specified stats from averages df
-* Visualizing 1+ players' season OR specified stats (matplotlib graph) 
+I am an amateur software engineer and wanted to gauge my ability to make a functional 'hacky' data retrieval method if I did not have access to a clean API (The NBA removed their official API a few years ago).
 
-**As of 12/11, functionality includes:**
-* Pulling players' UUID from BasketballReference.com
-* Pulling teams' UUID from BasketballReference.com
-* Pulling players' career stats from BBREF given UUID
-* Pulling players' gamelogs from BBREF given UUID
-* Separate module for functions: methods.py
-* Separate module for tests: tests.py
-* Separate module for Object-Oriented implementation: OO.py
+I have bundled a complete SQLite database (NBA.db) of current NBA player gamelogs / averages for their entire careers (minus playoffs) so that you don't need to create it. If you wish to create your own database with these methods, you will need a SockS5 proxy to avoid HTTP request limits alongside some browser headers (which can simply be found online); with these, you would follow the instructions in the 'Proxy / DB Instructions' to create the necessary 'credentials.json' file necessary for IO/WebScraper.py to work.
 
-**As of 12/20, functionality includes:**
-* File Input/Output functionality to save Player & Team urls, and user League/Team/Player objects (module: File_IO.py)
-* Developed Object-Oriented implimentation to abstract out pulling/storing user data (module: OO.py (old) -> Objects.py)
-* Developed Unittests for more up-to-date testing
-* Abstract out methods.py -> functions.py, HTML_IO.py
-* Abstract out Data files (/Data) and IO files (/IO)
+### Functionality ###
 
-**As of 12/29, functionality includes:**
-* HTML I/O with proxy functionality to (semi) reliably web-scrape data on all the web-data gathering methods
-* Abstract out credentials/proxies to File IO to promote modularity
-* Cleaned unittest name scheme to more clearly organize and reflect testing purpose
-* Added functionality for player stat visualization
+- Retrieve up-to-date NBA player gamelogs & season averages
+- Cover statistics from any recorded season
+- Creates Pandas DataFrames for simple data manipulation, analysis, visualization, etc.
+- SQLite database creation & query functionality
+- Built-in proxy (SockS5) compatibility (**Required** for web-scraping / db creation)
 
-**As of 1/16, functionality includes:**
-* Added 'Group' Class to help compare specific players (not on the same team)
-* Reduced # of object methods by ~1/3 to enhance clarity
-* Abstract out html headers for IO requests to a file to promote modularity
-* Cleaned up main.py and process.ipynb so that user use is straightforward
-* Bug fixes
+### Use Instructions ###
+
+1. Access the 'query()' function from the 'IO/DB.py' module to pass SQL queries
+
+### Proxy / DB Instructions ###
+
+**This functionality is meant to be used with a proxy because of HTTP request limits; I bundle a Python Wheel that wraps a SockS5 proxy ontop of the standard requests library get() function**
+
+**To avoid using any proxies (NOT recommended), simply navigate to 'IO/WebScraper.py' and replace the 'URLProxy' library with 'requests', alongside subsequent calls to 'URLProxy.force_connect(url)' with requests.get(url)'**
+
+1. Install the Wheel 'URLProxy-0.1-py2-py3-none-any.whl' via pip (e.g., pip install 'URLProxy-0.1-py2-py3-none-any.whl')
+1. Create a JSON file in the IO directory named 'credentials.json' with the following format
+{
+    "credentials": [Socks5 user, Socks5 pass, Socks5 user:pass]
+    "headers": [Browser headers]
+    "proxies": [IP addresses]
+}
+2. Use Functions in 'IO/WebScraper.py' to generate DataFrames
+3. Pass the '.values' attribute of the DataFrames to 'IO/DB.py' functions to save them to the SQLite db (e.g., db.save_gamelogs(df.values))
+
+### DB Schema ###
+
+1. Players (Player, Tag, Team)
+2. Teams (Team, URL)
+3. Career (Player, Season, Age, Team, Position, Played, Started, Minutes,...(game stats))
+4. Gamelogs (Player, Season, PTS, Date, Team, Opponent, Away, Result, Win, Minutes, Started, Age,...(game stats))
+
+### Legal ###
+This tool is in no ways endorsed by the National Basketball Association (NBA) or basketball-reference.com
