@@ -23,7 +23,7 @@ I have bundled a complete SQLite database (NBA.db) of current NBA player gamelog
 
 ## Use Instructions
 
-1. Access the 'query()' function from the 'IO/DB.py' module to pass SQL queries
+1. Use the 'query()' function in main to pass SQL queries; the complete schema is listed below
 
 ## Proxy / DB Instructions
 
