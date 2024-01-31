@@ -1,94 +1,154 @@
 # Name : WebScraper.py
 # Auth : KT
 # Desc : Module that webscrapes Basketball Reference and returns DataFrames
-from bs4 import BeautifulSoup  # bs4 : HTML data processing
-import pandas as pd            # pd  : create dataframes from data
-import re                      # re  : string pattern procesing
-import io                      # io  : parse url requests
-import time
-import URLProxy                # URLP: *CUSTOM* my own wheel that wraps Socks5 proxy (credentials loaded in 'credentials.json' on the requests.get() method
+from bs4 import BeautifulSoup  # bs4 : HTML processing
+import pandas as pd            # pd  : dataframe creation
+import os                      # os  : env variables
+import re                      # re  : str pattern procesing
+import io                      # io  : HTTP req processing
+#import URLProxyC as mylib     # URLP: *CUSTOM* my own lib - wraps Socks5 proxy (credentials loaded in 'credentials.json')
 
-def Get_Players(teams) -> dict:
+UseProxy = os.environ.get('USE_PROXY') == "1"
+if UseProxy: import URLProxy as req
+else: import requests as req
+
+REFORMAT =  ['Age','Result', 'GS', 'MP', 'FG', 'FGA', 'FG%','3P','3PA', '3P%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'GmSc', '+/-']
+REFORMATCS =  ['Age','G', 'GS', 'MP', 'FG', 'FGA', 'FG%','3P','3PA', '3P%', '2P', '2PA', '2P%', 'eFG%', 'FT', 'FTA', 'FT%', 'ORB', 'DRB', 'TRB', 'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS']
+
+def Get_Players(team, season = 2023) -> dict:
     '''Returns a dict {PLAYER name, bbref PLAYER tag} given a [list of team urls]'''
+
+    # Type checks
+    assert (type(team) == str and type(season) == int)
+
+    # Get HTML
     players = {}
     pattern = '/[a-zA-Z]*/[a-zA-Z]/([a-zA-Z0-9]*)'
-    for team, url in teams.items():
-        # Request
-        html_page = URLProxy.force_connect(url)
-        soup = BeautifulSoup(html_page.text, "lxml")
-        # HTML Parsing
-        for table in soup.findAll('table', attrs={'id': 'per_game'}):
-            for tbody in table.findAll('tbody'):
-                for tr in tbody.findAll('tr'):
-                    for td in tr.findAll('td', attrs={'data-stat': ['player']}):
-                        for a in td.findAll('a'):
-                            player = a.text
-                            link = a['href']
-                            link = re.findall(pattern, link)[0]
-                    players[player] = (link, team)
-    return players
-
-def Get_Teams(return_html = True) -> dict:
-    '''Returns a dict {TEAM name, bbref TEAM tag}, [optional] return html links as dict values'''
-    html_page = URLProxy.force_connect(url='https://www.basketball-reference.com/leagues/NBA_2023_standings.html')
-    soup = BeautifulSoup(html_page.text, "lxml")
-    teams = {}
-    pattern = '/[a-zA-Z]*/([a-zA-Z]*)/'
-    for table in soup.findAll('table', attrs={'id': ['confs_standings_E', 'confs_standings_W']}):
+    r = req.get(f'https://www.basketball-reference.com/teams/{team}/{season}.html#roster')
+    if not UseProxy: r = r.text
+    soup = BeautifulSoup(r, "lxml")
+    # HTML Parsing
+    for table in soup.findAll('table', {'id': 'roster'}):
         for tbody in table.findAll('tbody'):
             for tr in tbody.findAll('tr'):
-                for th in tr.findAll('th', attrs={'data-stat': ['team_name']}):
-                    for a in th.findAll('a'):
+                for td in tr.findAll('td', attrs={'data-stat': ['player']}):
+                    for a in td.findAll('a'):
+                        player = a.text
+                        ptag = a['href']
+                        ptag = re.findall(pattern, ptag)[0]
+                players[player] = ptag
+        break
+    return players
+
+def Get_Teams(season = 2023) -> list:
+    '''Returns a list [(tag, team), (tag2, team2),...]'''
+
+    # Type checks
+    assert type(season) == int
+
+    # Get raw html (requires a fix)
+    r = req.get(url=f'https://www.basketball-reference.com/leagues/NBA_{season}_standings.html#expanded_standings')
+    if not UseProxy: r = r.text
+    page = r.replace('<!--', '') # (the fix)
+    soup = BeautifulSoup(page, features="html.parser")
+    pattern = '/[a-zA-Z]*/([a-zA-Z]*)/'
+    teams = []
+
+    # Parse html
+    for table in soup.findAll('table', attrs={'id': ['expanded_standings']}, recursive=True):
+        for tbody in table.findAll('tbody'):
+            for tr in tbody.findAll('tr'):
+                for td in tr.findAll('td', attrs={'data-stat': ['team_name']}):
+                    for a in td.findAll('a'):
                         team = a.text
-                        team_link = a['href']
-                        team_link = re.findall(pattern, team_link)[0]
-                        if return_html: team_link = f'https://www.basketball-reference.com/teams/{team_link}/2023.html#roster'
-                teams[team] = team_link
+                        tag = a['href']
+                        tag = re.findall(pattern, tag)[0]
+                teams.append((tag, team))
     return teams
 
 def Get_Seasons(tag) -> list:
     '''Return a [list of player seasons]'''
-    # URL Connection
-    r = URLProxy.force_connect(url=f'http://www.basketball-reference.com/players/{tag[0]}/{tag}.html#totals')
-    # HTML Parsing
-    try: 
-        df = pd.read_html(io.StringIO(r.text))[1]
-        if('Age' not in df.columns): df = pd.read_html(io.StringIO(r.text))[0]
-        df.dropna(subset=['Age'], inplace=True) # drop unplayed seasons, which is just bloater rows
-        seasons = df['Season'].apply(lambda x: int(x[0:2] + x[5:7])).values # get the seasons he played
+    r = req.get(url=f'http://www.basketball-reference.com/players/{tag[0]}/{tag}.html#totals')
+    if not UseProxy: r = r.text
+    try:     # HTML Parsing
+        df = pd.read_html(io.StringIO(r))[1]
+        if('Age' not in df.columns): 
+            df = pd.read_html(io.StringIO(r))[0]
+            if('Age' not in df.columns): df = pd.read_html(io.StringIO(r))[2]
+        df.dropna(subset=['Age'], inplace=True) # drop unplayed seasons (bloater rows)
+        seasons = df['Season'].apply(lambda x: int(x[0:2] + x[5:7])).values # Convert (yyyy-yyyy) format to (yyyy)
     except ValueError: seasons = []
-    r.close()
-    return seasons
+    finally:       
+        return seasons
 
-def Get_Gamelogs(player, tag, seasons) -> pd.DataFrame:
+def Get_Gamelogs(player, tag, season, playoffs = False) -> pd.DataFrame:
     '''Return DataFrame of gamelogs given a [list of players] and [list of seasons]'''
-    gamelogs = pd.DataFrame()
-    for season in seasons:
-        # Establish URL connection
-        r = URLProxy.force_connect(url=f"https://www.basketball-reference.com/players/{tag[0]}/{tag}/gamelog/{season}#pgl_basic")
-        # Read HTML info / close connection
-        try: playerlogs = pd.read_html(io.StringIO(r.text), match="Regular Season")[0] # returns html tables list
-        except ValueError: playerlogs = pd.DataFrame()
+
+    # Get HTML
+    url=f"https://www.basketball-reference.com/players/{tag[0]}/{tag}/gamelog/{season}#pgl_basic"
+    if playoffs: url += '_playoffs'
+    r = req.get(url)
+    if not UseProxy: r = r.text
+
+    # Parse HTML
+    try: 
+        logs = pd.read_html(io.StringIO(r), match='Regular Season')[0] # returns html tables list
+        logs['Season'] = season
+        logs['Player'] = player
+        logs['Playoffs'] = int(playoffs)
+    except ValueError as e: 
+        print(f'WebScraper.py: Get_Gamelogs (Value error): {e}')
+        logs = pd.DataFrame()
+    finally: 
         r.close()
-        # Add DF
-        playerlogs['Season'] = season
-        playerlogs['Player'] = player
-        if not playerlogs.empty: gamelogs = pd.concat([gamelogs,playerlogs]).reset_index(drop=True)
-        time.sleep(0.5)
-    return Clean_DF(gamelogs)
+        return Clean_DF(logs)
 
 def Get_Career(player, tag) -> pd.DataFrame: 
     '''Return DataFrame of career averages given a [list of players]'''
-    # Establish URL connection
-    r = URLProxy.force_connect(url=f"https://www.basketball-reference.com/players/{tag[0]}/{tag}.html#per_game")
+
+    # Get HTML
+    r = req.get(url=f"https://www.basketball-reference.com/players/{tag[0]}/{tag}.html#per_game")
+    if not UseProxy: r = r.text
+
+    try: 
+
+        # Find the proper 'career stats' table
+        cs = pd.read_html(io.StringIO(r))[1]
+        if 'Age' not in cs.columns: 
+            cs =  pd.read_html(io.StringIO(r))[0]
+            if 'Age' not in cs.columns: 
+                cs =  pd.read_html(io.StringIO(r))[2]
+        # Mark player
+        cs['Player'] = player
+        cs['Tag'] = tag
+        r.close()
+        return Clean_DF(cs, career = True)
+    
+    except ValueError as e: 
+        print(f'WebScraper.py: Get_Career (Value error): {e}')
+        r.close()
+        return pd.DataFrame()
+
+def Get_Playoffs(season) -> pd.DataFrame:
+    '''Return DataFrame of playoff teams given a season'''
+    url=f'https://www.basketball-reference.com/playoffs/NBA_{season}.html#per_game-team'
+    # Get HTML
+    r = req.get(url)
+    if not UseProxy: r = r.text
+    #print(html_page)
     # Read HTML info / close connection
     try: 
-        career_stats = pd.read_html(io.StringIO(r.text))[1]
-        if 'Age' not in career_stats.columns: career_stats =  pd.read_html(io.StringIO(r.text))[0]
-        career_stats['Player'] = player
-    except ValueError as e: print(e); career_stats = pd.DataFrame()
-    r.close()
-    return Clean_DF(career_stats, career = True)
+        tables = pd.read_html(io.StringIO(r))
+        for table in tables: 
+            if 'Team' not in table.columns and 'Tm' not in table.columns: continue
+            try: teams = table['Team'][:-1].values
+            except ValueError and KeyError: teams = table['Tm'][:-1].values
+            assert len(teams) in [8, 10, 12, 16, 20]
+            return teams
+    except ValueError as e: 
+        print(f'WebScraper.py: Get_Playoffs (Value error): {e}')
+        return []
+
 
 def Clean_DF(d, career = False) -> pd.DataFrame:
     '''Cleans player gamelogs, [optional] clean season_stats'''
@@ -112,3 +172,4 @@ def Clean_DF(d, career = False) -> pd.DataFrame:
         d['Season'] = d['Season'].apply(lambda x: 2000 + int(x[-2:]))
         for stat in REFORMATCS: d[stat] = d[stat].astype(float)
     return d
+

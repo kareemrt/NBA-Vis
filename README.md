@@ -1,52 +1,53 @@
 # NBA-Visualizer
 ## Author: Kareem T | Date: 11/22/2022
 
-Program that utilizes web-scraping (via basketball-reference.com) to construct DataFrames and populate an SQL database 
+Program that utilizes web-scraping (via basketball-reference.com) to construct DataFrames, populate a database, and host a Web-API
 
 **The goal:** Find analytical insights about the NBA.
 
-## About
+Both the dataframe web-scraping and database populator modules are included in ./IO.
+SQL is default but you can modify IO/DB.py to use any connector given you also change the functions.
 
-This project began as a Jupyter notebook but the functionality has been expanded to separate modules so that it can be used in both Jupyter and as a standalone Python program.
+If you are creating a database, you will need a SockS5 proxy and browser headers to avoid request limits; follow the 'Data Web-Scrape Instructions' below.
 
-I am an amateur software engineer and wanted to gauge my ability to make a functional 'hacky' data retrieval method if I did not have access to a clean API (The NBA removed their official API a few years ago).
+If you are only creating a select few dataframes, you do not require a proxy.
 
-I have bundled a complete SQLite database (NBA.db) of current NBA player gamelogs / averages for their entire careers (minus playoffs) so that you don't need to create it. If you wish to create your own database with these methods, you will need a SockS5 proxy to avoid HTTP request limits alongside some browser headers (which can simply be found online); with these, you would follow the instructions in the 'Proxy / DB Instructions' to create the necessary 'credentials.json' file necessary for IO/WebScraper.py to work.
+## Features
 
-## Functionality
-
-- Retrieve up-to-date NBA player gamelogs & season averages
+- Retrieve up-to-date NBA player gamelogs, averages, and other information
 - Cover statistics from any recorded season
 - Creates Pandas DataFrames for simple data manipulation, analysis, visualization, etc.
-- SQLite database creation & query functionality
-- Built-in proxy (SockS5) compatibility (**Required** for web-scraping / db creation)
+- MySQL database creation & query functionality
+- Web-API for data retrieval: https://visnba.com
+- Built-in proxy (SockS5) compatibility (**Highly recommended** for web-scraping / db creation)
 
 ## Use Instructions
+##### *Store/Query Database*
+1. Setup your database connector & credentials in 'IO/DB.py'
+   - The module is setup for SQL (mySQL) by default: different connectors require the functions to be changed.
+2. Use the 'query()' function in 'IO/DB.py' to pass SQL queries
+   - Import DB.py and call query()
+3. Use the 'save_[operation]' functions in 'IO/DB.py' to store into the database
 
-1. Use the 'query()' function in main to pass SQL queries; the complete schema is listed below
+##### *Data Web-Scrape Instructions*
+**Highly recommended: Use bundled Python module (URLProxy.py) that uses a Socks5 proxy. Set 'Proxy = True' in Main.Multi_Process()**
 
-## Proxy / DB Instructions
-
-**This functionality is meant to be used with a proxy because of HTTP request limits; I bundle a Python Wheel that wraps a SockS5 proxy ontop of the standard requests library get() function**
-
-*To avoid using any proxies (NOT recommended), simply navigate to 'IO/WebScraper.py' and replace the 'URLProxy' library with 'requests', alongside subsequent calls to 'URLProxy.force_connect(url)' with requests.get(url)'*
-
-1. Install the Wheel 'URLProxy-0.1-py2-py3-none-any.whl' via pip (e.g., pip install 'URLProxy-0.1-py2-py3-none-any.whl')
-1. Create a JSON file in the IO directory named 'credentials.json' with the following format
+0. (If using proxy) Create a JSON file in the IO directory named 'credentials.json' with the following format
 {
-    "credentials": [Socks5 user, Socks5 pass, Socks5 user:pass]
+    "credentials": ["Socks5 user:Socks5 pass"]
     "headers": [Browser headers]
     "proxies": [IP addresses]
 }
-2. Use Functions in 'IO/WebScraper.py' to generate DataFrames
-3. Pass the '.values' attribute of the DataFrames to 'IO/DB.py' functions to save them to the SQLite db (e.g., db.save_gamelogs(df.values))
+1. Use Functions in 'IO/WebScraper.py' to generate DataFrames
+2. Pass the '.values' attribute of the DataFrames to 'IO/DB.py' functions to save them to the db (e.g., db.save_gamelogs(df.values))
 
-## DB Schema
+## About
 
-1. Players (Player, Tag, Team)
-2. Teams (Team, URL)
-3. Career (Player, Season, Age, Team, Position, Played, Started, Minutes,...(game stats))
-4. Gamelogs (Player, Season, PTS, Date, Team, Opponent, Away, Result, Win, Minutes, Started, Age,...(game stats))
+This project began as a Jupyter notebook about betting analytics but has since been expanded to separate modules.
+
+I am an amateur wanting to gauge my abilities at making a data retrieval method if I could not access an API (The NBA removed their API a few years ago).
+
+I host my own API with data retrieved using these modules here: (https://visnba.com); feel free to use these modules to create a platform of your own.
 
 ## Legal
 This tool is in no ways endorsed by the National Basketball Association (NBA) or basketball-reference.com
