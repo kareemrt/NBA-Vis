@@ -1,16 +1,17 @@
 # NBA-Visualizer
-## Author: Kareem T | Date: 11/22/2022
+##### *Kareem T | 11/22/2022*
 
-Program that utilizes web-scraping (via basketball-reference.com) to construct DataFrames, populate a database, and host a Web-API
+Program utilizing web-scraping to construct DataFrames, populate a database, and host an API.
 
-**The goal:** Find analytical insights about the NBA.
+Web-scraping & database modules are included in 'IO'; SQL is default but any connector can be used by changing the functions in DB.py.
 
-Both the dataframe web-scraping and database populator modules are included in ./IO.
-SQL is default but you can modify IO/DB.py to use any connector given you also change the functions.
+Creating a database REQUIRES a SockS5 proxy, browser headers to avoid request limits; follow *'Data Web-Scrape Instructions'* below.
 
-If you are creating a database, you will need a SockS5 proxy and browser headers to avoid request limits; follow the 'Data Web-Scrape Instructions' below.
+Creating a few dataframes does not require a proxy.
 
-If you are only creating a select few dataframes, you do not require a proxy.
+
+**The goal:** Build custom data-gathering tools, then find analytical insights about the NBA.
+
 
 ## Features
 
@@ -22,15 +23,15 @@ If you are only creating a select few dataframes, you do not require a proxy.
 - Built-in proxy (SockS5) compatibility (**Highly recommended** for web-scraping / db creation)
 
 ## Use Instructions
-##### *Store/Query Database*
+### *Store/Query Database*
 1. Setup your database connector & credentials in 'IO/DB.py'
    - The module is setup for SQL (mySQL) by default: different connectors require the functions to be changed.
 2. Use the 'query()' function in 'IO/DB.py' to pass SQL queries
    - Import DB.py and call query()
 3. Use the 'save_[operation]' functions in 'IO/DB.py' to store into the database
 
-##### *Data Web-Scrape Instructions*
-**Highly recommended: Use bundled Python module (URLProxy.py) that uses a Socks5 proxy. Set 'Proxy = True' in Main.Multi_Process()**
+### *Data Web-Scrape Instructions*
+**Highly recommended:** Use bundled Python module (URLProxy.py) that uses a Socks5 proxy. Set 'Proxy = True' in Main.Multi_Process()
 
 0. (If using proxy) Create a JSON file in the IO directory named 'credentials.json' with the following format
 {
